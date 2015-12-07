@@ -10,7 +10,7 @@
         {
             "environment": [],
             "name": "simple-app",
-            "image": "amazon/amazon-ecs-sample",
+            "image": "cordoval/amazon-ecs-sample",
             "cpu": 10,
             "memory": 500,
             "portMappings": [
