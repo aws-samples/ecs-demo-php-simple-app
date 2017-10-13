@@ -18,7 +18,6 @@
                 <h1>Simple PHP App</h1>
                 <h2>Congratulations</h2>
                 <H5> LIVE FROM WEBCAST! </H5>
-                <h2> Today is not the 13th </h2>
                 <p>Your PHP application is now running on a container in Amazon ECS.</p>
                 <p>The container is running PHP version <?php echo phpversion(); ?>.</p>
                 <?php
