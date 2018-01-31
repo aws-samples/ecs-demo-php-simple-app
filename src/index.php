@@ -15,7 +15,7 @@
     <body>
         <div class="container">
             <div class="hero-unit">
-                <h1>Sysco primer for Deloitte</h1>
+                <h1>Let's do a change</h1>
                 <h2>Sample app</h2>
                 <p>The application is running on a container in Amazon ECS.</p>
                 <p>The container is running PHP version <?php echo phpversion(); ?>.</p>
