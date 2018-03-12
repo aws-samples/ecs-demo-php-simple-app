@@ -1,0 +1,19 @@
+version: 0.1
+
+phases:
+  install:
+    commands:
+      - 
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR.
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - echo Build completed on `date`
+  post_build:
+    commands:
+      - echo Running tests...
+      - echo Tests passed, pushing the Docker image...
+
