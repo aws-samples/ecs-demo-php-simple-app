@@ -1,0 +1,163 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+# TODO Make sure the Stack Name is consistent and identifable with repo/branch/etc.
+# TODO what parts of these stacks are we okay with individual services modifying, and which need more control?
+#      that'll influence the stack organization a bit. e.g. IAM roles are centralized and not defined per service.
+#      another way of looking at it - what are we okay with having automatically provisioned via CF without any central auditing/review.
+
+Parameters:
+  GitHubRepo:
+    Type: String
+    Default: skunkworks-worf
+
+  GitHubBranch:
+    Type: String
+    Default: build-pipeline
+
+  GitHubToken:
+    Type: String
+    NoEcho: true
+
+  GitHubUser:
+    Type: String
+    Default: robhruska
+
+# TODO these are likely going to be outputs of the service.yaml stack instead
+  # Cluster:
+  #   Type: String
+
+  # Service:
+  #   Type: String
+
+Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - $(aws ecr get-login --no-include-email)
+                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+                - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
+            build:
+              commands:
+                - docker build --tag "$IMAGE_URI" .
+            post_build:
+              commands:
+                - docker push "$IMAGE_URI"
+                - printf '{"Parameters":{"Branch":"%s","ImageUri":"%s"},"Tags":{"Environment":"Internal","Role":"RoleTool","Group":"%s"}}' "$GITHUB_BRANCH" "$IMAGE_URI" "$GITHUB_REPO" > configuration.json
+                - cat configuration.json
+          artifacts:
+            files:
+              - configuration.json
+              - .build/service.yaml
+            discard-paths: yes
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/docker:17.09.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+          - Name: GITHUB_BRANCH
+            Value: !Ref GitHubBranch
+          - Name: GITHUB_REPO
+            Value: !Ref GitHubRepo
+      Name: !Ref AWS::StackName
+      ServiceRole: !ImportValue Worf-CodeBuildServiceRoleArn
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !ImportValue Worf-CodePipelineServiceRoleArn
+      ArtifactStore:
+        Type: S3
+        Location: !ImportValue Worf-ArtifactBucketName
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceCodeRepository
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: SourceCodeRepository
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: BuildContainerImage
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: SourceCodeRepository
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+        - Name: Provision
+          Actions:
+            - Name: CreateServiceAndTaskDefinition
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              InputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                RoleArn: !ImportValue Worf-CloudFormationServiceRoleArn
+                StackName: !Sub '${AWS::StackName}-ServiceDefinition'
+                TemplateConfiguration: BuildOutput::configuration.json
+                TemplatePath: BuildOutput::service.yaml
+              RunOrder: 1
+              # TODO for more robustness, this could delete the stack if it gets rolled back on initial creation;
+              # right now if it fails, it sits in a ROLLBACK status and then a re-run of the template can't overwrite it
+              # would have to use CloudWatch Events with CodePipeline as a target, i think.
+              # - https://aws.amazon.com/about-aws/whats-new/2017/07/amazon-cloudwatch-events-now-supports-aws-codepipeline-as-a-target/
+              # - https://stackoverflow.com/questions/41969260/invoke-lambda-function-on-codepipeline-stage-or-action-failure
+
+        # - Name: Deploy
+        #   Actions:
+        #     - Name: RunTask
+        #       ActionTypeId:
+        #         Category: Deploy
+        #         Owner: AWS
+        #         Version: 1
+        #         Provider: ECS
+        #       Configuration:
+        #         ClusterName: !Ref Cluster
+        #         ServiceName: !Ref Service
+        #         FileName: images.json
+        #       InputArtifacts:
+        #         - Name: BuildOutput
+        #       RunOrder: 1
+
+Outputs:
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+    # TODO probably don't need this output, but what outputs do we need instead? any?
