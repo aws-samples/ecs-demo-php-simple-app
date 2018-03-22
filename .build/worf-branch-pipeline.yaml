@@ -9,11 +9,11 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   GitHubRepo:
     Type: String
-    Default: skunkworks-worf
+    # Default: skunkworks-worf
 
   GitHubBranch:
     Type: String
-    Default: build-pipeline
+    # Default: master
 
   GitHubToken:
     Type: String
@@ -21,18 +21,13 @@ Parameters:
 
   GitHubUser:
     Type: String
-    Default: robhruska
-
-# TODO these are likely going to be outputs of the service.yaml stack instead
-  # Cluster:
-  #   Type: String
-
-  # Service:
-  #   Type: String
+    # Default: robhruska
 
 Resources:
   Repository:
     Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub 'worf-${AWS::StackName}'
     DeletionPolicy: Retain
 
   CodeBuildProject:
@@ -50,13 +45,15 @@ Resources:
                 - $(aws ecr get-login --no-include-email)
                 - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
                 - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
+                - CONTAINER_PORT=80
+                - SERVICE_NAME="$(echo "$GITHUB_REPO-$GITHUB_BRANCH" | head -c 20)"
             build:
               commands:
                 - docker build --tag "$IMAGE_URI" .
             post_build:
               commands:
                 - docker push "$IMAGE_URI"
-                - printf '{"Parameters":{"Branch":"%s","ImageUri":"%s"},"Tags":{"Environment":"Internal","Role":"RoleTool","Group":"%s"}}' "$GITHUB_BRANCH" "$IMAGE_URI" "$GITHUB_REPO" > configuration.json
+                - printf '{"Parameters":{"ServiceName":"%s","ImageUri":"%s","ContainerPort":"%s"},"Tags":{"Environment":"Internal","Role":"RoleTool","Group":"%s"}}' "$SERVICE_NAME" "$IMAGE_URI" "$CONTAINER_PORT" "$GITHUB_REPO" > configuration.json
                 - cat configuration.json
           artifacts:
             files:
@@ -64,7 +61,7 @@ Resources:
               - .build/service.yaml
             discard-paths: yes
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
+        ComputeType: BUILD_GENERAL1_MEDIUM
         Image: aws/codebuild/docker:17.09.0
         Type: LINUX_CONTAINER
         EnvironmentVariables:
@@ -131,7 +128,7 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 RoleArn: !ImportValue Worf-CloudFormationServiceRoleArn
-                StackName: !Sub '${AWS::StackName}-ServiceDefinition'
+                StackName: !Sub '${AWS::StackName}-def'
                 TemplateConfiguration: BuildOutput::configuration.json
                 TemplatePath: BuildOutput::service.yaml
               RunOrder: 1
@@ -141,23 +138,8 @@ Resources:
               # - https://aws.amazon.com/about-aws/whats-new/2017/07/amazon-cloudwatch-events-now-supports-aws-codepipeline-as-a-target/
               # - https://stackoverflow.com/questions/41969260/invoke-lambda-function-on-codepipeline-stage-or-action-failure
 
-        # - Name: Deploy
-        #   Actions:
-        #     - Name: RunTask
-        #       ActionTypeId:
-        #         Category: Deploy
-        #         Owner: AWS
-        #         Version: 1
-        #         Provider: ECS
-        #       Configuration:
-        #         ClusterName: !Ref Cluster
-        #         ServiceName: !Ref Service
-        #         FileName: images.json
-        #       InputArtifacts:
-        #         - Name: BuildOutput
-        #       RunOrder: 1
 
-Outputs:
-  PipelineUrl:
-    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+# Outputs:
+#   PipelineUrl:
+#     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
     # TODO probably don't need this output, but what outputs do we need instead? any?
