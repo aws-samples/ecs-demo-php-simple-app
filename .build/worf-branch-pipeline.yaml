@@ -7,6 +7,8 @@ AWSTemplateFormatVersion: 2010-09-09
 #      another way of looking at it - what are we okay with having automatically provisioned via CF without any central auditing/review.
 
 Parameters:
+
+  # TODO we need to sanitize repo and branch name before using them as CF resource names
   GitHubRepo:
     Type: String
     # Default: skunkworks-worf
@@ -58,7 +60,7 @@ Resources:
           artifacts:
             files:
               - configuration.json
-              - .build/service.yaml
+              - .build/worf-service.yaml
             discard-paths: yes
       Environment:
         ComputeType: BUILD_GENERAL1_MEDIUM
