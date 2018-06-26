@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php 
+require '../vendor/autoload.php';
+?>
 <html lang="en">
 
     <head>
@@ -18,6 +21,7 @@
                 <h1>Simple PHP App Dev to Be Merged Into Master</h1>
                 <h2>success</h2>
                 <p>running a container in Amazon ECS.</p>
+                <p>composer installed AWS PHP SDK ...</p>
                 <p>container PHP version <?php echo phpversion(); ?>.</p>
                 <?php
                         $myfile = fopen("/var/www/my-vol/date", "r") or die("");
