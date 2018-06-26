@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <?php 
-require '../vendor/autoload.php';
+//require '../vendor/autoload.php';
 ?>
 <html lang="en">
 
