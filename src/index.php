@@ -20,6 +20,9 @@
             <div class="hero-unit">
                 <h1>Simple PHP App Dev to Be Merged Into Master</h1>
                 <h2>success</h2>
+                <p>more success....</p>
+                <h1>THANKS TO </h1>
+                <a href="https://github.com/awslabs/ecs-refarch-continuous-deployment">THESE GUYS</a>
                 <p>running a container in Amazon ECS.</p>
                 <p>composer installed AWS PHP SDK ...</p>
                 <p>container PHP version <?php echo phpversion(); ?>.</p>
