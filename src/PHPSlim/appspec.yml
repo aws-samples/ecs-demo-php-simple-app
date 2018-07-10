@@ -1,0 +1,33 @@
+version: 0.0
+os: linux
+files:
+  - source: /logs
+    destination: /var/www/html/logs/
+  - source: /public
+    destination: /var/www/html/public/
+  - source: /src
+    destination: /var/www/html/src/
+  - source: /templates
+    destination: /var/www/html/templates/
+  - source: /tests
+    destination: /var/www/html/tests/
+  - source: /composer.json
+    destination: /var/www/html/
+  - source: /composer.lock
+    destination: /var/www/html/
+  - source: /phpunit.xml
+    destination: /var/www/html/
+  - source: /index.php
+    destination: /var/www/html/
+hooks:
+  AfterInstall:
+    - location: scripts/install_dependencies
+      timeout: 1000
+      runas: root
+    - location: scripts/start_server
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: scripts/stop_server
+      timeout: 300
+      runas: root
