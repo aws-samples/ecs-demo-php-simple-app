@@ -18,12 +18,12 @@
     <body>
         <div class="container">
             <div class="hero-unit">
-                <h1>Simple PHP App</h1>
-                <h2>success</h2>
-                <p>more success....</p>
-                <h1>THANKS TO </h1>
-                <a href="https://github.com/awslabs/ecs-refarch-continuous-deployment">THESE GUYS</a>
-                <p>AWS > ECS > Load Balanced with phpsdk installed .</p>
+                <h1>AWS > ECS > Load Balanced with phpsdk installed .</h1>
+
+               
+                <p>Thanks to.. </p>
+                <a href="https://github.com/awslabs/ecs-refarch-continuous-deployment">https://github.com/awslabs/ecs-refarch-continuous-deployment</a>
+                
                 <p>container PHP version <?php echo phpversion(); ?>.</p>
                 <?php
                         $myfile = fopen("/var/www/my-vol/date", "r") or die("");
@@ -31,7 +31,7 @@
                         fclose($myfile);
                 ?>
                 <p>okay dokay!</p>
-                <a href="/PHPSlim/index.php">PHPSim Framework</a>
+                <a href="/PHPSlim/index.php">/PHPSlim/index.php could not make this connect to Slim framework.</a>
             </div>
         </div>
 
