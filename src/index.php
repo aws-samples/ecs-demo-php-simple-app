@@ -31,7 +31,8 @@
                         fclose($myfile);
                 ?>
                 <p>okay dokay!</p>
-                <a href="/PHPSlim/index.php">/PHPSlim/index.php could not make this connect to Slim framework.</a>
+                <a href="/PHPSlim/index.php">/PHPSlim/index.php could not make this connect to Slim framework.</a></br>
+                <a href="/info.php">phpinfo</a>
             </div>
         </div>
 
