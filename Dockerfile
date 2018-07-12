@@ -1,8 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:12.04
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install -y git curl apache2 php7.0-fpm libapache2-mod-php7.0 php7.0-mcrypt php7.0-mysql php7.0-mbstring
+RUN apt-get install -y git curl apache2 php5 libapache2-mod-php5 php5-mcrypt php5-mysql
 
 # Install app
 RUN rm -rf /var/www/*
