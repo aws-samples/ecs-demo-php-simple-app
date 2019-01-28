@@ -24,9 +24,11 @@ pipeline {
       input {
         message: 'Approve deployment?'
       }
-      milestone()
       steps {
-        echo 'Deploying'
+        milestone()
+        steps {
+          echo 'Deploying'
+        }
       }
     }
     stage('BuildApproved') {
