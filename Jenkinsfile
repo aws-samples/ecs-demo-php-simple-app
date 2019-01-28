@@ -21,8 +21,10 @@ pipeline {
       }
     }
     stage('Approval') {
-      timeout( time: 5, unit: 'DAYS') {
-        input message: 'Approve deployment?'
+      steps {
+        timeout( time: 5, unit: 'DAYS') {
+          input message: 'Approve deployment?'
+        }
       }
     }
     stage('BuildApproved') {
