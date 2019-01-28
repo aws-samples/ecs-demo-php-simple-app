@@ -20,5 +20,13 @@ pipeline {
         '''
       }
     }
+    timeout( time: 5, unit: 'DAYS') {
+      input message: 'Approve deployment?'
+    }
+    stage('BuildApproved') {
+      steps {
+        echo 'Build approved'
+      }
+    }
   }
 }
