@@ -18,17 +18,16 @@ pipeline {
             docker tag docker-ci-test:$GIT_COMMIT 574233067113.dkr.ecr.us-east-1.amazonaws.com/ecsbl-repos-1bi6yqfr6rvyf:$GIT_COMMIT
             docker push 574233067113.dkr.ecr.us-east-1.amazonaws.com/ecsbl-repos-1bi6yqfr6rvyf:$GIT_COMMIT
         '''
+        milestone 1
       }
     }
     stage('Approval') {
-      steps {
-        milestone 1
-        steps {
-          echo 'Deploying'
-        }
-      }
       input {
         message 'Approve deployment?'
+      }
+      steps {
+        milestone 2
+        echo 'Approved'
       }
     }
     stage('BuildApproved') {
