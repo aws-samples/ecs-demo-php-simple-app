@@ -22,7 +22,7 @@ pipeline {
     }
     stage('Approval') {
       input {
-        message: 'Approve deployment?'
+        message 'Approve deployment?'
       }
       steps {
         milestone()
