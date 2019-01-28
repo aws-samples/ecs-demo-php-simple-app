@@ -21,10 +21,10 @@ pipeline {
       }
     }
     stage('Approval') {
+      input message: 'Approve deployment?'
+      milestone()
       steps {
-        timeout( time: 5, unit: 'DAYS') {
-          input message: 'Approve deployment?'
-        }
+        echo 'Deploying'
       }
     }
     stage('BuildApproved') {
