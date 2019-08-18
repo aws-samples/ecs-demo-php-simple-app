@@ -16,6 +16,8 @@ phases:
       - echo Building the Docker image...
       - echo ---------image tag $REPOSITORY_URI:latest---------
       - echo ---------$(pwd)---------
+      - echo ---------$(ls)---------
+      - echo ---------$(cat Dockerfile)---------
       - docker build ./ -t ecs-demo-php-simple-app:latest
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
