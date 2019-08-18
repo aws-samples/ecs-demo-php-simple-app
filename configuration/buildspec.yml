@@ -14,7 +14,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $ECR_REPOSITORY_NAME .
+      - docker build -t $ECR_REPOSITORY_NAME:$IMAGE_TAG .
       - docker tag $ECR_REPOSITORY_NAME:latest $REPOSITORY_URI:latest
   post_build:
     commands:
