@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="assets/css/bootstrap.min.css" rel="stylesheet">
         <!--[original bg color]<style>body {margin-top: 40px; background-color: #333;}</style>-->
-        <style>body {margin-top: 40px; background-color: #b03043;}</style>
+        <style>body {margin-top: 40px; background-color: #3043b0;}</style>
         <link href="assets/css/bootstrap-responsive.min.css" rel="stylesheet">
         <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     </head>
