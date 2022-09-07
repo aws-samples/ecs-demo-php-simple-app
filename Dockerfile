@@ -1,11 +1,10 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2
+FROM public.ecr.aws/amazonlinux/amazonlinux:2022
 
 # Install dependencies
 RUN yum install -y \
-    curl \
-    httpd \
-    php \
- && ln -s /usr/sbin/httpd /usr/sbin/apache2
+  httpd \
+  php \
+  && ln -s /usr/sbin/httpd /usr/sbin/apache2
 
 # Install app
 RUN rm -rf /var/www/html/* && mkdir -p /var/www/html
