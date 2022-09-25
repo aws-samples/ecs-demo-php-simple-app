@@ -1,0 +1,15 @@
+dist: focal
+
+services:
+  - docker
+
+before_script:
+  - mkdir -p ~/.docker/cli-plugins
+  - wget -O - https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64 > ~/.docker/cli-plugins/docker-buildx
+  - chmod a+x ~/.docker/cli-plugins/docker-buildx
+  - docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
+  - docker buildx create --use --name mybuilder
+
+script:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - docker buildx build --platform linux/amd64,linux/arm64 -t amazon/amazon-ecs-sample:latest --push .;
